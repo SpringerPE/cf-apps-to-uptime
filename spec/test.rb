@@ -128,7 +128,7 @@ describe 'enhance_app_data' do
         "meta" => {"alerting" => {"emails" => ["mailme@domain.com"]}},
         "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"]
       }
-      expect(enhance_app_data data, "/internal/status").to eq(expected)
+      expect(enhance_app_data data, "/internal/status", /-live/).to eq(expected)
     end
   end
 end
