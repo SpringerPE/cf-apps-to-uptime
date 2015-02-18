@@ -6,5 +6,5 @@ applications:
     memory: 128MB
     command: 'bundle exec clockwork app.rb'
     env:
-      uptime_api: http://uptime.domain.com/
+      uptime_api: http://uptime.domain.com/api/checks/
       cf_api: http://cf-api.domain.com # https://github.com/SpringerPE/cf-light-api
