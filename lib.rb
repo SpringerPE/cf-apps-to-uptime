@@ -1,5 +1,6 @@
 require 'httparty'
 require 'json'
+require_relative 'config'
 
 def get_from_api(api_url)
   JSON.parse(HTTParty.get(api_url).body)
@@ -72,12 +73,12 @@ def add_to_uptime(data, uptime_api)
   emails = data.fetch("meta", {}).fetch("alerting", {}).fetch("emails", [])
   tags << emails.map {|email| "mailto:#{email}"}
 
-  response = HTTParty.put(uptime_api,
-                          :body => {"name" => data['url'],
-                                    "url"  => data['url'],
-                                    "tags" => tags.flatten,
-                                    "alertTreshold" => ENV["alertTreshold"],
-                                    "interval" => ENV["interval"]})
+  body = {"name" => data['url'],
+          "url"  => data['url'],
+          "tags" => tags.flatten}
+  body["alertTreshold"] = AppConfig::ALERT_TRESHOLD if not AppConfig::ALERT_TRESHOLD.nil?
+  body["interval"] = AppConfig::INTERVAL if not AppConfig::INTERVAL.nil?
+  response = HTTParty.put(uptime_api, :body => body)
 end
 
 def carry_out_diff(diff, uptime_api)
