@@ -5,11 +5,11 @@ def get_from_api(api_url)
   JSON.parse(HTTParty.get(api_url).body)
 end
 
-def should_monitor_route?(route, regex=/-live./)
+def should_monitor_route?(route, regex)
   not (regex.match route).nil?
 end
 
-def should_monitor_app?(app, regex=/-live./)
+def should_monitor_app?(app, regex)
   app["routes"].each do |route|
     if should_monitor_route? route, regex
       return true
@@ -26,8 +26,8 @@ def get_meta(url)
   end
 end
 
-def enhance_app_data(app, meta_path)
-  entry_url = app["routes"].select {|route| should_monitor_route? route }[0]
+def enhance_app_data(app, meta_path, regex)
+  entry_url = app["routes"].select {|route| should_monitor_route? route, regex }[0]
   if not /^http:\/\//.match entry_url
     entry_url = "http://#{entry_url}"
   end
