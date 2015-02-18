@@ -1,16 +1,16 @@
 require 'clockwork'
 include Clockwork
 require_relative 'lib'
+require_relative 'config'
 
 handler do |job|
-  cf_data = get_from_api(ENV['cf_api'])
-  uptime_data = get_from_api(ENV['uptime_api'])
+  cf_data = get_from_api(AppConfig::CF_API)
+  uptime_data = get_from_api(AppConfig::UPTIME_API)
 
-  cf_apps_to_monitor = cf_data.select {|app| should_monitor_app? app}
-  cf_apps_enhanced = cf_apps_to_monitor.map {|app| enhance_app_data app}
+  cf_apps_to_monitor = cf_data.select {|app| should_monitor_app? app, AppConfig::ROUTE_REGEX}
+  cf_apps_enhanced = cf_apps_to_monitor.map {|app| enhance_app_data app, '/internal/status', AppConfig::ROUTE_REGEX}
   diff_data = diff(cf_apps_enhanced, uptime_data)
-  puts "DIFF! #{diff_data}"
-  carry_out_diff(diff_data, ENV['uptime_api'])
+  carry_out_diff(diff_data, AppConfig::UPTIME_API)
 end
 
 every(5.minutes, 'update uptime')
