@@ -1,3 +1,5 @@
-uptime_api = ENV['uptime_api']
-cf_api = ENV['cf_api']
-route_regex = Regexp.new (ENV['route_regex'] || '.*')
+module AppConfig
+  UPTIME_API = ENV['uptime_api']
+  CF_API = ENV['cf_api']
+  ROUTE_REGEX = Regexp.new (ENV['route_regex'] || '.*')
+end
