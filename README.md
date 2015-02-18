@@ -1,6 +1,6 @@
 This util updates uptime based on a regex pattern for routes of applications.
 
-1. First, it queries the cf-light-api and filter outs applications that mathes the defined regex(specified in manifest)
+1. First, it queries the cf-light-api and filter outs applications that has a route that matches a regex(specified in manifest, if nothing is specified /.*/ will be used)
 2. Secondly, if specified in the manifest it goes to the meta-path of each application to fetch metadata for the application.
    Metadata might be a email address to alert if an event is triggered or other paths we want to monitor.
 3. It queries the uptime api to get all the checks we already have in place.
