@@ -10,6 +10,7 @@ handler do |job|
   cf_apps_to_monitor = cf_data.select {|app| should_monitor_app? app, AppConfig::ROUTE_REGEX}
   cf_apps_enhanced = cf_apps_to_monitor.map {|app| enhance_app_data app, '/internal/status', AppConfig::ROUTE_REGEX}
   diff_data = diff(cf_apps_enhanced, uptime_data)
+  puts "DIFFED DATA YO: #{diff_data}"
   carry_out_diff(diff_data, AppConfig::UPTIME_API)
 end
 
