@@ -8,3 +8,5 @@ applications:
     env:
       uptime_api: http://uptime.domain.com/
       cf_api: http://cf-api.domain.com # https://github.com/SpringerPE/cf-light-api
+      alertTreshold: 3
+      interval: 3

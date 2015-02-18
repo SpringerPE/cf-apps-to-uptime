@@ -75,7 +75,9 @@ def add_to_uptime(data, uptime_api)
   response = HTTParty.put(uptime_api,
                           :body => {"name" => data['url'],
                                     "url"  => data['url'],
-                                    "tags" => tags.flatten})
+                                    "tags" => tags.flatten,
+                                    "alertTreshold" => ENV["alertTreshold"],
+                                    "interval" => ENV["interval"]})
 end
 
 def carry_out_diff(diff, uptime_api)
