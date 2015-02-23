@@ -1,6 +1,5 @@
 require 'httparty'
 require 'json'
-require_relative 'config'
 
 def get_from_api(api_url)
   JSON.parse(HTTParty.get(api_url).body)
