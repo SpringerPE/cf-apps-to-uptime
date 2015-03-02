@@ -26,6 +26,22 @@ def get_meta(url)
   end
 end
 
+def alert_treshold(meta, alert_threshold)
+  meta_alert_threshold = meta.fetch("monitoring", {})["threshold"]
+  if meta_alert_threshold
+    return meta_alert_threshold
+  end
+  alert_threshold
+end
+
+def check_interval(meta, check_interval)
+  meta_check_interval = meta.fetch("monitoring", {})["interval"]
+  if meta_check_interval
+    return meta_check_interval
+  end
+  check_interval
+end
+
 def enhance_app_data(app, meta_path, regex, alert_threshold, interval)
   entry_url = app["routes"].select {|route| should_monitor_route? route, regex }[0]
   if not /^http:\/\//.match entry_url
@@ -34,8 +50,13 @@ def enhance_app_data(app, meta_path, regex, alert_threshold, interval)
   meta_url = File.join(entry_url, meta_path)
   app["monitor_routes"] = [meta_url]
   app["meta"] = get_meta(meta_url)
-  app["alertThreshold"] = alert_threshold if alert_threshold
-  app["interval"] = interval if interval
+
+  alert_threshold_tmp = alert_treshold(app["meta"], alert_threshold)
+  app["alertThreshold"] = alert_threshold_tmp
+
+  interval_tmp = check_interval(app["meta"], interval)
+  app["interval"] = interval_tmp
+
   tags = []
   tags << app["org"]
   emails = app.fetch("meta", {}).fetch("alerting", {}).fetch("emails", [])

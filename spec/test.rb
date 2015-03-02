@@ -238,3 +238,59 @@ describe 'carry_out_diff' do
     end
   end
 end
+
+
+describe 'alert_treshold' do
+
+  context 'when given no data' do
+    it 'should return nil' do
+      expect(alert_treshold({}, nil)).to eq nil
+    end
+  end
+
+  context 'when given only global alert_threshold' do
+    it 'should return global alert_threshold' do
+      expect(alert_treshold({}, 3)).to eq 3
+    end
+  end
+
+  context 'when given only meta' do
+    it 'should return meta threshold' do
+      expect(alert_treshold({"monitoring" => {"threshold" => 3}}, nil)).to eq 3
+    end
+  end
+
+  context 'when given both global and meta' do
+    it 'should return meta threshold' do
+      expect(alert_treshold({"monitoring" => {"threshold" => 3}}, 2)).to eq 3
+    end
+  end
+end
+
+
+describe 'interval' do
+
+  context 'when given no data' do
+    it 'should return nil' do
+      expect(check_interval({}, nil)).to eq nil
+    end
+  end
+
+  context 'when given only global check_interval' do
+    it 'should return global check_interval' do
+      expect(check_interval({}, 3)).to eq 3
+    end
+  end
+
+  context 'when given only meta' do
+    it 'should return meta threshold' do
+      expect(check_interval({"monitoring" => {"interval" => 3}}, nil)).to eq 3
+    end
+  end
+
+  context 'when given both global and meta' do
+    it 'should return meta threshold' do
+      expect(check_interval({"monitoring" => {"interval" => 3}}, 2)).to eq 3
+    end
+  end
+end
