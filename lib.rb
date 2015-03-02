@@ -26,7 +26,7 @@ def get_meta(url)
   end
 end
 
-def enhance_app_data(app, meta_path, regex)
+def enhance_app_data(app, meta_path, regex, alert_threshold, interval)
   entry_url = app["routes"].select {|route| should_monitor_route? route, regex }[0]
   if not /^http:\/\//.match entry_url
     entry_url = "http://#{entry_url}"
@@ -34,6 +34,8 @@ def enhance_app_data(app, meta_path, regex)
   meta_url = File.join(entry_url, meta_path)
   app["monitor_routes"] = [meta_url]
   app["meta"] = get_meta(meta_url)
+  app["alertTreshold"] = alert_threshold if alert_threshold  # keyword 'alertTreshold' is misspelled, because it is misspelled in Uptime
+  app["interval"] = interval if interval
   app
 end
 
@@ -72,12 +74,10 @@ def add_to_uptime(data, uptime_api)
   emails = data.fetch("meta", {}).fetch("alerting", {}).fetch("emails", [])
   tags << emails.map {|email| "mailto:#{email}"}
 
-  response = HTTParty.put(uptime_api,
-                          :body => {"name" => data['url'],
-                                    "url"  => data['url'],
-                                    "tags" => tags.flatten,
-                                    "alertTreshold" => ENV["alertTreshold"],
-                                    "interval" => ENV["interval"]})
+  body = {"name" => data['url'],
+          "url"  => data['url'],
+          "tags" => tags.flatten}
+  response = HTTParty.put(uptime_api, :body => body)
 end
 
 def carry_out_diff(diff, uptime_api)

@@ -126,9 +126,11 @@ describe 'enhance_app_data' do
         ],
         "data_from"=>1424103541,
         "meta" => {"alerting" => {"emails" => ["mailme@domain.com"]}},
-        "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"]
+        "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"],
+        "alertTreshold" => 1,  # keyword is misspelled in Uptime
+        "interval" => 60
       }
-      expect(enhance_app_data data, "/internal/status", /-live/).to eq(expected)
+      expect(enhance_app_data data, "/internal/status", /-live/, 1, 60).to eq(expected)
     end
   end
 end
