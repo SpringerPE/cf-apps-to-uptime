@@ -34,8 +34,8 @@ def enhance_app_data(app, meta_path, regex, alert_threshold, interval)
   meta_url = File.join(entry_url, meta_path)
   app["monitor_routes"] = [meta_url]
   app["meta"] = get_meta(meta_url)
-  app["alertTreshold"] = alert_threshold if not alert_threshold.nil?  # keyword 'alertTreshold' is misspelled, because it is misspelled in Uptime
-  app["interval"] = interval if not interval.nil?
+  app["alertTreshold"] = alert_threshold if alert_threshold  # keyword 'alertTreshold' is misspelled, because it is misspelled in Uptime
+  app["interval"] = interval if interval
   app
 end
 
