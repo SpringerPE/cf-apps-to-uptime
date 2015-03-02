@@ -73,10 +73,18 @@ def delete_from_uptime(data, uptime_api)
   HTTParty.delete(File.join(uptime_api, data['_id']))
 end
 
-def add_to_uptime(data, uptime_api)
-  body = {"name" => data['url'],
-          "url"  => data['url'],
-          "tags" => data['tags']}
+def prepare_body(app)
+  body = {"name" => app['url'],
+          "url"  => app['url'],
+          "tags" => app['tags']}
+  body["interval"] = app["interval"] if app["interval"]
+  body["alertTreshold"] = app["alertTreshold"] if app["alertTreshold"]
+  puts body
+  body
+end
+
+def add_to_uptime(app, uptime_api)
+  body = prepare_body(app)
   response = HTTParty.put(uptime_api, :body => body)
 end
 
