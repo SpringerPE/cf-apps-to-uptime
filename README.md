@@ -8,8 +8,9 @@ This util updates uptime based on a regex pattern for routes of applications.
 5. It iterates over 4 and carries out the actions.
 
 
-There is a assumption made that the app exposes a metadata endpoint
-The schema is currently
+There is a assumption made that the app exposes a metadata endpoint.
+
+The schema is currently:
 
 ```
 	{
@@ -35,6 +36,6 @@ Easy peasy
 
 ## Getting this into CF
 
-        mv example-manifest.yml manifest.yml
-        emacs manifest.yml
+	mv example-manifest.yml manifest.yml
+	emacs manifest.yml
 	cf push
