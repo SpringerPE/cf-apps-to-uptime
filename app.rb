@@ -9,7 +9,7 @@ handler do |job|
 
   cf_apps_to_monitor = cf_data.select {|app| should_monitor_app? app, AppConfig::ROUTE_REGEX}
   cf_apps_enhanced = cf_apps_to_monitor.map {|app| enhance_app_data app,
-                                                                    '/internal/status',
+                                                                    AppConfig::META_PATH,
                                                                     AppConfig::ROUTE_REGEX,
                                                                     AppConfig::ALERT_THRESHOLD,
                                                                     AppConfig::INTERVAL}
