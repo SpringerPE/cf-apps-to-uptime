@@ -50,8 +50,13 @@ def enhance_app_data(app, meta_path, regex, alert_threshold, interval)
   meta_url = File.join(entry_url, meta_path)
   app["monitor_routes"] = [meta_url]
   app["meta"] = get_meta(meta_url)
-  app["alertThreshold"] = alert_threshold if alert_threshold
-  app["interval"] = interval if interval
+
+  alert_threshold_tmp = alert_treshold(app["meta"], alert_threshold)
+  app["alertThreshold"] = alert_threshold_tmp
+
+  interval_tmp = check_interval(app["meta"], interval)
+  app["interval"] = interval_tmp
+
   tags = []
   tags << app["org"]
   emails = app.fetch("meta", {}).fetch("alerting", {}).fetch("emails", [])
