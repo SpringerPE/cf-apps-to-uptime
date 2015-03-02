@@ -4,4 +4,5 @@ module AppConfig
   ROUTE_REGEX = Regexp.new (ENV['route_regex'] || '.*')
   ALERT_TRESHOLD = ENV["alertTreshold"]
   INTERVAL = ENV["interval"]
+  META_PATH = ENV["metaPath"]
 end
