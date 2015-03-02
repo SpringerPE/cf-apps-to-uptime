@@ -9,6 +9,6 @@ applications:
       uptime_api: http://uptime.domain.com/api/checks/
       cf_api: http://cf-api.domain.com # https://github.com/SpringerPE/cf-light-api
       route_regex: springer-is-awesome # Will add checks for all url's containing "springer-is-awesome", add any valid regex as you see fit. If unsed it will default to .*
-      alertTreshold: 1  # optional
+      alertThreshold: 1  # optional
       interval: 60      # optional
       metaPath: /internal/status # Currently needed
