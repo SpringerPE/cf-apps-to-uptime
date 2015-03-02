@@ -79,7 +79,6 @@ def prepare_body(app)
           "tags" => app['tags']}
   body["interval"] = app["interval"] if app["interval"]
   body["alertTreshold"] = app["alertTreshold"] if app["alertTreshold"]
-  puts body
   body
 end
 
