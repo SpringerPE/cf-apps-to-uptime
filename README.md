@@ -7,6 +7,22 @@ This util updates uptime based on a regex pattern for routes of applications.
 4. It creates a datastrucure of new checks to add, checks to change and checks to delete
 5. It iterates over 4 and carries out the actions.
 
+
+There is a assumption made that the app exposes a metadata endpoint
+The schema is currently
+
+```
+	{
+    "alerting": { (optional)
+		"emails": ["email@domain.com", "email2@domain.com"] (optional)
+	},
+    "monitoring": { (optional)
+        "interval": 60, (optional)
+        "threshold": 3, (optional)
+    }
+}
+```
+
 ## Setting up your env
 Easy peasy
 
@@ -18,7 +34,7 @@ Easy peasy
 	rspec tests
 
 ## Getting this into CF
-        
+
         mv example-manifest.yml manifest.yml
         emacs manifest.yml
 	cf push
