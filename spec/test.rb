@@ -128,7 +128,8 @@ describe 'enhance_app_data' do
         "meta" => {"alerting" => {"emails" => ["mailme@domain.com"]}},
         "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"],
         "alertTreshold" => 1,  # keyword is misspelled in Uptime
-        "interval" => 60
+        "interval" => 60,
+        "tags" => ["isrctn", "mailto:mailme@domain.com"]
       }
       expect(enhance_app_data data, "/internal/status", /-live/, 1, 60).to eq(expected)
     end
@@ -187,7 +188,7 @@ describe 'add_to_uptime' do
       stub_request(:put, /api.uptime.com/).
         to_return(:status => 200)
 
-      add_to_uptime({"url" => "http://my-app-live.domain.com", "org" => "test"}, "http://api.uptime.com")
+      add_to_uptime({"url" => "http://my-app-live.domain.com", "tags" => ["test"]}, "http://api.uptime.com")
       expect(WebMock).to have_requested(:put, "http://api.uptime.com/").
                           with(:body => {"name" => "http://my-app-live.domain.com",
                                          "url" => "http://my-app-live.domain.com",
@@ -204,8 +205,7 @@ describe 'carry_out_diff' do
         to_return(:status => 200)
       stub_request(:delete, /api.uptime.com/).
         to_return(:status => 200)
-      diff_data = {"to_add" => [{"url" => "a", "org" => "test"}, {"url" => "b", "org" => "test",
-                                                                  "meta" => {"alerting" => {"emails" => ["mailme@domain.com"]}}}],
+      diff_data = {"to_add" => [{"url" => "a", "tags" => ["test"]}, {"url" => "b", "tags" => ["test", "mailto:mailme@domain.com"]}],
                    "to_delete" => [{"_id" => "blurgh"}, {"_id" => "wakawaka"}]}
       carry_out_diff(diff_data, "http://api.uptime.com")
       expect(WebMock).to have_requested(:delete, "http://api.uptime.com/blurgh")

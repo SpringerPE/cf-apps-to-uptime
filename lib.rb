@@ -36,6 +36,11 @@ def enhance_app_data(app, meta_path, regex, alert_threshold, interval)
   app["meta"] = get_meta(meta_url)
   app["alertTreshold"] = alert_threshold if alert_threshold  # keyword 'alertTreshold' is misspelled, because it is misspelled in Uptime
   app["interval"] = interval if interval
+  tags = []
+  tags << app["org"]
+  emails = app.fetch("meta", {}).fetch("alerting", {}).fetch("emails", [])
+  tags << emails.map {|email| "mailto:#{email}"}
+  app["tags"] = tags.flatten
   app
 end
 
@@ -69,14 +74,9 @@ def delete_from_uptime(data, uptime_api)
 end
 
 def add_to_uptime(data, uptime_api)
-  tags = []
-  tags << data["org"]
-  emails = data.fetch("meta", {}).fetch("alerting", {}).fetch("emails", [])
-  tags << emails.map {|email| "mailto:#{email}"}
-
   body = {"name" => data['url'],
           "url"  => data['url'],
-          "tags" => tags.flatten}
+          "tags" => data['tags']}
   response = HTTParty.put(uptime_api, :body => body)
 end
 
