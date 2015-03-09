@@ -120,7 +120,6 @@ describe 'create_app_data' do
         "org" => "isrctn",
         "space" => "live",
         "name"=> "isrctn-live-509",
-        "meta" => {"alerting" => {"emails" => ["mailme@domain.com"]}},
         "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"],
         "alertThreshold" => 1,  # keyword is misspelled in Uptime
         "interval" => 60,
