@@ -94,6 +94,20 @@ describe 'diff' do
       expect(diff_data).to eq expected
     end
   end
+
+  context 'when given a updated cf data' do
+    it 'should update the check' do
+      cf_data = [{"monitor_routes" => ["a"], "tags" => ["simon", "johansson"]}]
+      uptime_data = [{"_id" => "WRYYYYY", "url" => "a", "name" => "a", "tags" => ["simon"]}]
+
+      diff_data = diff(cf_data, uptime_data)
+      expected = {"to_add" => [],
+                  "to_delete" => [],
+                  "to_update" => [{"_id" => "WRYYYYY", "tags" => ["simon", "johansson"]}]}
+
+      expect(diff_data).to eq expected
+    end
+  end
 end
 
 describe 'create_app_data' do
