@@ -68,7 +68,7 @@ def create_app_data(app, meta_path, regex, alert_threshold, interval)
 end
 
 def diff(cf_data, uptime_data)
-  return_data = {"to_delete" => [],
+  diff_data = {"to_delete" => [],
                  "to_add" => [],
                  "to_update" => []}
 
@@ -82,17 +82,28 @@ def diff(cf_data, uptime_data)
         app_data.delete("monitor_routes")
         app_data["name"] = route
         app_data["url"] = route
-        return_data["to_add"] << app_data
+        diff_data["to_add"] << app_data
+      else
+        # Check is already in uptime, better check if we need to update it
+        uptime_check = uptime_data.select {|u| u["url"] == route}[0]
+        update_data = {}
+        update_data["alertThreshold"] = app["alertThreshold"] if app["alertThreshold"] != uptime_check["alertTreshold"] # alertTreshold is wrongly spelled in uptime.
+        update_data["interval"] = app["interval"] if app["interval"] != uptime_check["interval"]
+        update_data["tags"] = app["tags"] if Set.new(app["tags"]) != Set.new(uptime_check["tags"])
+        if not update_data.empty?
+          update_data["_id"] = uptime_check["_id"]
+          diff_data["to_update"] << update_data
+        end
       end
     end
   end
 
   uptime_data.each do |route|
     if not cf_routes.include? route["url"]
-      return_data["to_delete"] << route
+      diff_data["to_delete"] << route
     end
   end
-  return_data
+  diff_data
 end
 
 def delete_from_uptime(data, uptime_api)
