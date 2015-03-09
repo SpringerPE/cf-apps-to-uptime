@@ -60,7 +60,6 @@ def create_app_data(app, meta_path, regex, alert_threshold, interval)
   meta_url = File.join(entry_url, meta_path)
   meta = get_meta(meta_url)
 
-  app_data["name"] = app["name"]
   app_data["monitor_routes"] = [meta_url] # This will be enhanced trough the app metadata.
   app_data["alertThreshold"] = alert_treshold(meta, alert_threshold)
   app_data["interval"] = check_interval(meta, interval)
