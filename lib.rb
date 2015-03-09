@@ -43,13 +43,20 @@ def check_interval(meta, check_interval)
 end
 
 def enhance_app_data(app, meta_path, regex, alert_threshold, interval)
+def create_tags(app, meta)
+  tags = []
+  tags << app["org"]
+  emails = meta.fetch("alerting", {}).fetch("emails", [])
+  tags << emails.map {|email| "mailto:#{email}"}
+  tags.flatten
+end
+  app_data = {}
   entry_url = app["routes"].select {|route| should_monitor_route? route, regex }[0]
   if not /^http:\/\//.match entry_url
     entry_url = "http://#{entry_url}"
   end
   meta_url = File.join(entry_url, meta_path)
   app["monitor_routes"] = [meta_url]
-  app["meta"] = get_meta(meta_url)
 
   alert_threshold_tmp = alert_treshold(app["meta"], alert_threshold)
   app["alertThreshold"] = alert_threshold_tmp
@@ -57,12 +64,9 @@ def enhance_app_data(app, meta_path, regex, alert_threshold, interval)
   interval_tmp = check_interval(app["meta"], interval)
   app["interval"] = interval_tmp
 
-  tags = []
-  tags << app["org"]
-  emails = app.fetch("meta", {}).fetch("alerting", {}).fetch("emails", [])
-  tags << emails.map {|email| "mailto:#{email}"}
-  app["tags"] = tags.flatten
   app
+  meta = get_meta(meta_url)
+  app_data["tags"] = create_tags(app, meta)
 end
 
 def diff(cf_data, uptime_data)
