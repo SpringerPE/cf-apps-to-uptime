@@ -180,7 +180,7 @@ describe 'add_to_uptime' do
       stub_request(:put, /api.uptime.com/).
         to_return(:status => 200)
 
-      add_to_uptime({"url" => "http://my-app-live.domain.com", "tags" => ["test"]}, "http://api.uptime.com")
+      add_to_uptime({"url" => "http://my-app-live.domain.com", "name" => "http://my-app-live.domain.com", "tags" => ["test"]}, "http://api.uptime.com")
       expect(WebMock).to have_requested(:put, "http://api.uptime.com/").
                           with(:body => {"name" => "http://my-app-live.domain.com",
                                          "url" => "http://my-app-live.domain.com",
@@ -194,7 +194,7 @@ describe 'add_to_uptime' do
       stub_request(:put, /api.uptime.com/).
         to_return(:status => 200)
 
-      add_to_uptime({"url" => "http://my-app-live.domain.com", "tags" => ["test"], "interval" => 10, "alertThreshold" => 3}, "http://api.uptime.com")
+      add_to_uptime({"url" => "http://my-app-live.domain.com", "name" => "http://my-app-live.domain.com", "tags" => ["test"], "interval" => 10, "alertThreshold" => 3}, "http://api.uptime.com")
       expect(WebMock).to have_requested(:put, "http://api.uptime.com/").
                           with(:body => {"name" => "http://my-app-live.domain.com",
                                          "url" => "http://my-app-live.domain.com",
