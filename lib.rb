@@ -42,7 +42,6 @@ def check_interval(meta, check_interval)
   check_interval
 end
 
-def enhance_app_data(app, meta_path, regex, alert_threshold, interval)
 def create_tags(app, meta)
   tags = []
   tags << app["org"]
@@ -50,7 +49,10 @@ def create_tags(app, meta)
   tags << emails.map {|email| "mailto:#{email}"}
   tags.flatten
 end
+
+def create_app_data(app, meta_path, regex, alert_threshold, interval)
   app_data = {}
+
   entry_url = app["routes"].select {|route| should_monitor_route? route, regex }[0]
   if not /^http:\/\//.match entry_url
     entry_url = "http://#{entry_url}"
