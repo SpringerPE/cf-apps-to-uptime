@@ -69,8 +69,8 @@ end
 
 def diff(cf_data, uptime_data)
   diff_data = {"to_delete" => [],
-                 "to_add" => [],
-                 "to_update" => []}
+               "to_add" => [],
+               "to_update" => []}
 
   cf_routes = Set.new (cf_data.map {|app| app["monitor_routes"]}).flatten
   uptime_routes = Set.new uptime_data.map {|route| route["url"]}
