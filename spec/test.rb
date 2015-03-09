@@ -64,7 +64,8 @@ describe 'diff' do
                                  "url" => "http://blablabla.com",
                                  "tags" => ["simon"]
                                }],
-                  "to_delete" => []}
+                  "to_delete" => [],
+                  "to_update" => []}
       expect(diff_data).to eq expected
     end
   end
@@ -75,7 +76,7 @@ describe 'diff' do
       uptime_data = [{"url" => "http://blablabla.com", "org" => "simon"}]
 
       diff_data = diff(cf_data, uptime_data)
-      expected = {"to_add" => cf_data, "to_delete" => uptime_data}
+      expected = {"to_add" => cf_data, "to_delete" => uptime_data, "to_update" => []}
       expect(diff_data).to eq expected
     end
   end
@@ -88,7 +89,8 @@ describe 'diff' do
       diff_data = diff(cf_data, uptime_data)
       expected = {"to_add" => [{"url" => "g", "name" => "g"},
                                {"url" => "b", "name" => "b"}],
-                  "to_delete" => [{"url" => "d"}]}
+                  "to_delete" => [{"url" => "d"}],
+                  "to_update" => []}
       expect(diff_data).to eq expected
     end
   end
