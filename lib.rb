@@ -78,9 +78,11 @@ def diff(cf_data, uptime_data)
   cf_data.each do |app|
     app['monitor_routes'].each do |route|
       if not uptime_routes.include? route
-        return_data["to_add"] << { "url" => route,
-                                   "meta" => app["meta"],
-                                   "org" => app["org"] }
+        app_data = app.clone # This will have the format of the returned hash from create_app_data
+        app_data.delete("monitor_routes")
+        app_data["name"] = route
+        app_data["url"] = route
+        return_data["to_add"] << app_data
       end
     end
   end
