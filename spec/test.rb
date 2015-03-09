@@ -55,15 +55,15 @@ end
 describe 'diff' do
   context 'when given a new route not in uptime' do
     it 'should add the route' do
-      cf_data = [{"monitor_routes" => ["http://blablabla.com"], "org" => "simon", "meta" => {}}]
+      cf_data = [{"monitor_routes" => ["http://blablabla.com"], "tags" => ["simon"]}]
       uptime_data = []
 
       diff_data = diff(cf_data, uptime_data)
       expected = {"to_add" => [{
-                    "url" => "http://blablabla.com",
-                    "org" => "simon",
-                    "meta" => {}
-                  }],
+                                 "name" => "http://blablabla.com",
+                                 "url" => "http://blablabla.com",
+                                 "tags" => ["simon"]
+                               }],
                   "to_delete" => []}
       expect(diff_data).to eq expected
     end
@@ -82,16 +82,12 @@ describe 'diff' do
 
   context 'when given a mix' do
     it 'should do the needful' do
-      cf_data = [{"monitor_routes" => ["a", "g"], "meta" => {}}, {"monitor_routes" => ["b"], "meta" => {}}, {"monitor_routes" => ["c"], "meta" => {}}]
+      cf_data = [{"monitor_routes" => ["a", "g"]}, {"monitor_routes" => ["b"]}, {"monitor_routes" => ["c"]}]
       uptime_data = [{"url" => "a"}, {"url" => "c"}, {"url" => "d"}]
 
       diff_data = diff(cf_data, uptime_data)
-      expected = {"to_add" => [{"url" => "g",
-                                "meta" => {},
-                                "org" => nil},
-                               {"url" => "b",
-                                "meta" => {},
-                                "org" => nil}],
+      expected = {"to_add" => [{"url" => "g", "name" => "g"},
+                               {"url" => "b", "name" => "b"}],
                   "to_delete" => [{"url" => "d"}]}
       expect(diff_data).to eq expected
     end
@@ -214,7 +210,7 @@ describe 'carry_out_diff' do
         to_return(:status => 200)
       stub_request(:delete, /api.uptime.com/).
         to_return(:status => 200)
-      diff_data = {"to_add" => [{"url" => "a", "tags" => ["test"]}, {"url" => "b", "tags" => ["test", "mailto:mailme@domain.com"]}],
+      diff_data = {"to_add" => [{"url" => "a", "name" => "a", "tags" => ["test"]}, {"url" => "b", "name" => "b", "tags" => ["test", "mailto:mailme@domain.com"]}],
                    "to_delete" => [{"_id" => "blurgh"}, {"_id" => "wakawaka"}]}
       carry_out_diff(diff_data, "http://api.uptime.com")
       expect(WebMock).to have_requested(:delete, "http://api.uptime.com/blurgh")
