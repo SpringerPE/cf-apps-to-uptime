@@ -58,17 +58,18 @@ def create_app_data(app, meta_path, regex, alert_threshold, interval)
     entry_url = "http://#{entry_url}"
   end
   meta_url = File.join(entry_url, meta_path)
-  app["monitor_routes"] = [meta_url]
-
-  alert_threshold_tmp = alert_treshold(app["meta"], alert_threshold)
-  app["alertThreshold"] = alert_threshold_tmp
-
-  interval_tmp = check_interval(app["meta"], interval)
-  app["interval"] = interval_tmp
-
-  app
   meta = get_meta(meta_url)
+
+  app_data["name"] = app["name"]
+  app_data["org"] = app["org"]
+  app_data["space"] = app["space"]
+  app_data["data_from"] = app["data_from"]
+  app_data["monitor_routes"] = [meta_url] # This will be enhanced trough the app metadata.
+  app_data["meta"] = meta
+  app_data["alertThreshold"] = alert_treshold(meta, alert_threshold)
+  app_data["interval"] = check_interval(meta, interval)
   app_data["tags"] = create_tags(app, meta)
+  app_data
 end
 
 def diff(cf_data, uptime_data)
