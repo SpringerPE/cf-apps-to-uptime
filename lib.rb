@@ -101,10 +101,12 @@ def add_to_uptime(app, uptime_api)
   body = prepare_body(app)
   response = HTTParty.put(uptime_api, :body => body)
 end
+
 def prepare_body(app)
-  body = {"name" => app['url'],
-          "url"  => app['url'],
-          "tags" => app['tags']}
+  body = {}
+  body["name"] = app["name"] if app["name"]
+  body["url"] = app["url"] if app["url"]
+  body["tags"] = app["tags"] if app["tags"]
   body["interval"] = app["interval"] if app["interval"]
   body["alertTreshold"] = app["alertThreshold"] if app["alertThreshold"] # keyword 'alertTreshold' is misspelled, because it is misspelled in Uptime
   body
