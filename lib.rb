@@ -97,6 +97,10 @@ def delete_from_uptime(data, uptime_api)
   HTTParty.delete(File.join(uptime_api, data['_id']))
 end
 
+def add_to_uptime(app, uptime_api)
+  body = prepare_body(app)
+  response = HTTParty.put(uptime_api, :body => body)
+end
 def prepare_body(app)
   body = {"name" => app['url'],
           "url"  => app['url'],
@@ -104,11 +108,6 @@ def prepare_body(app)
   body["interval"] = app["interval"] if app["interval"]
   body["alertTreshold"] = app["alertThreshold"] if app["alertThreshold"] # keyword 'alertTreshold' is misspelled, because it is misspelled in Uptime
   body
-end
-
-def add_to_uptime(app, uptime_api)
-  body = prepare_body(app)
-  response = HTTParty.put(uptime_api, :body => body)
 end
 
 def carry_out_diff(diff, uptime_api)
