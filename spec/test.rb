@@ -98,9 +98,9 @@ describe 'diff' do
   end
 end
 
-describe 'enhance_app_data' do
+describe 'create_app_data' do
   context 'when given a app with metadata' do
-    it 'should return the enhanced app data' do
+    it 'should return the app data' do
       stub_request(:get, /isrctn-live.domain.com/).
         to_return(status: 200,
                   body: '{"alerting": {"emails": ["mailme@domain.com"]}}')
@@ -120,10 +120,6 @@ describe 'enhance_app_data' do
         "org" => "isrctn",
         "space" => "live",
         "name"=> "isrctn-live-509",
-        "routes"=> [
-          "isrctn-live.domain.com",
-          "isrctn-live-509.domain.com"
-        ],
         "data_from"=>1424103541,
         "meta" => {"alerting" => {"emails" => ["mailme@domain.com"]}},
         "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"],
@@ -131,7 +127,7 @@ describe 'enhance_app_data' do
         "interval" => 60,
         "tags" => ["isrctn", "mailto:mailme@domain.com"]
       }
-      expect(enhance_app_data data, "/internal/status", /-live/, 1, 60).to eq(expected)
+      expect(create_app_data data, "/internal/status", /-live/, 1, 60).to eq(expected)
     end
   end
 end
