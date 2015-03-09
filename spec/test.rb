@@ -130,7 +130,7 @@ describe 'create_app_data' do
 
       expected = {
         "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"],
-        "alertThreshold" => 1,  # keyword is misspelled in Uptime
+        "alertTreshold" => 1,  # keyword is misspelled in Uptime
         "interval" => 60,
         "tags" => ["isrctn", "mailto:mailme@domain.com"]
       }
@@ -200,12 +200,12 @@ describe 'add_to_uptime' do
     end
   end
 
-  context 'when given a route to be added with interval and adding interval and alertThreshold' do
-    it 'should add the route with interval and alertThreshold' do
+  context 'when given a route to be added with interval and adding interval and alertTreshold' do
+    it 'should add the route with interval and alertTreshold' do
       stub_request(:put, /api.uptime.com/).
         to_return(:status => 200)
 
-      add_to_uptime({"url" => "http://my-app-live.domain.com", "name" => "http://my-app-live.domain.com", "tags" => ["test"], "interval" => 10, "alertThreshold" => 3}, "http://api.uptime.com")
+      add_to_uptime({"url" => "http://my-app-live.domain.com", "name" => "http://my-app-live.domain.com", "tags" => ["test"], "interval" => 10, "alertTreshold" => 3}, "http://api.uptime.com")
       expect(WebMock).to have_requested(:put, "http://api.uptime.com/").
                           with(:body => {"name" => "http://my-app-live.domain.com",
                                          "url" => "http://my-app-live.domain.com",
@@ -242,7 +242,8 @@ describe 'carry_out_diff' do
                                          "url" => "b",
                                          "tags" => ["test", "mailto:mailme@domain.com"]})
       expect(WebMock).to have_requested(:post, "http://api.uptime.com/kehe").
-                          with(:body => {"tags" => ["simon", "johansson"]})
+                          with(:body => {"_id" => "kehe",
+                                         "tags" => ["simon", "johansson"]})
     end
   end
 end
