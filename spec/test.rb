@@ -55,15 +55,15 @@ end
 describe 'diff' do
   context 'when given a new route not in uptime' do
     it 'should add the route' do
-      cf_data = [{"monitor_routes" => ["http://blablabla.com"], "org" => "simon", "meta" => {}}]
+      cf_data = [{"monitor_routes" => ["http://blablabla.com"], "tags" => ["simon"]}]
       uptime_data = []
 
       diff_data = diff(cf_data, uptime_data)
       expected = {"to_add" => [{
-                    "url" => "http://blablabla.com",
-                    "org" => "simon",
-                    "meta" => {}
-                  }],
+                                 "name" => "http://blablabla.com",
+                                 "url" => "http://blablabla.com",
+                                 "tags" => ["simon"]
+                               }],
                   "to_delete" => []}
       expect(diff_data).to eq expected
     end
@@ -82,25 +82,21 @@ describe 'diff' do
 
   context 'when given a mix' do
     it 'should do the needful' do
-      cf_data = [{"monitor_routes" => ["a", "g"], "meta" => {}}, {"monitor_routes" => ["b"], "meta" => {}}, {"monitor_routes" => ["c"], "meta" => {}}]
+      cf_data = [{"monitor_routes" => ["a", "g"]}, {"monitor_routes" => ["b"]}, {"monitor_routes" => ["c"]}]
       uptime_data = [{"url" => "a"}, {"url" => "c"}, {"url" => "d"}]
 
       diff_data = diff(cf_data, uptime_data)
-      expected = {"to_add" => [{"url" => "g",
-                                "meta" => {},
-                                "org" => nil},
-                               {"url" => "b",
-                                "meta" => {},
-                                "org" => nil}],
+      expected = {"to_add" => [{"url" => "g", "name" => "g"},
+                               {"url" => "b", "name" => "b"}],
                   "to_delete" => [{"url" => "d"}]}
       expect(diff_data).to eq expected
     end
   end
 end
 
-describe 'enhance_app_data' do
+describe 'create_app_data' do
   context 'when given a app with metadata' do
-    it 'should return the enhanced app data' do
+    it 'should return the app data' do
       stub_request(:get, /isrctn-live.domain.com/).
         to_return(status: 200,
                   body: '{"alerting": {"emails": ["mailme@domain.com"]}}')
@@ -117,21 +113,12 @@ describe 'enhance_app_data' do
       }
 
       expected = {
-        "org" => "isrctn",
-        "space" => "live",
-        "name"=> "isrctn-live-509",
-        "routes"=> [
-          "isrctn-live.domain.com",
-          "isrctn-live-509.domain.com"
-        ],
-        "data_from"=>1424103541,
-        "meta" => {"alerting" => {"emails" => ["mailme@domain.com"]}},
         "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"],
         "alertThreshold" => 1,  # keyword is misspelled in Uptime
         "interval" => 60,
         "tags" => ["isrctn", "mailto:mailme@domain.com"]
       }
-      expect(enhance_app_data data, "/internal/status", /-live/, 1, 60).to eq(expected)
+      expect(create_app_data data, "/internal/status", /-live/, 1, 60).to eq(expected)
     end
   end
 end
@@ -188,7 +175,7 @@ describe 'add_to_uptime' do
       stub_request(:put, /api.uptime.com/).
         to_return(:status => 200)
 
-      add_to_uptime({"url" => "http://my-app-live.domain.com", "tags" => ["test"]}, "http://api.uptime.com")
+      add_to_uptime({"url" => "http://my-app-live.domain.com", "name" => "http://my-app-live.domain.com", "tags" => ["test"]}, "http://api.uptime.com")
       expect(WebMock).to have_requested(:put, "http://api.uptime.com/").
                           with(:body => {"name" => "http://my-app-live.domain.com",
                                          "url" => "http://my-app-live.domain.com",
@@ -202,7 +189,7 @@ describe 'add_to_uptime' do
       stub_request(:put, /api.uptime.com/).
         to_return(:status => 200)
 
-      add_to_uptime({"url" => "http://my-app-live.domain.com", "tags" => ["test"], "interval" => 10, "alertThreshold" => 3}, "http://api.uptime.com")
+      add_to_uptime({"url" => "http://my-app-live.domain.com", "name" => "http://my-app-live.domain.com", "tags" => ["test"], "interval" => 10, "alertThreshold" => 3}, "http://api.uptime.com")
       expect(WebMock).to have_requested(:put, "http://api.uptime.com/").
                           with(:body => {"name" => "http://my-app-live.domain.com",
                                          "url" => "http://my-app-live.domain.com",
@@ -222,7 +209,7 @@ describe 'carry_out_diff' do
         to_return(:status => 200)
       stub_request(:delete, /api.uptime.com/).
         to_return(:status => 200)
-      diff_data = {"to_add" => [{"url" => "a", "tags" => ["test"]}, {"url" => "b", "tags" => ["test", "mailto:mailme@domain.com"]}],
+      diff_data = {"to_add" => [{"url" => "a", "name" => "a", "tags" => ["test"]}, {"url" => "b", "name" => "b", "tags" => ["test", "mailto:mailme@domain.com"]}],
                    "to_delete" => [{"_id" => "blurgh"}, {"_id" => "wakawaka"}]}
       carry_out_diff(diff_data, "http://api.uptime.com")
       expect(WebMock).to have_requested(:delete, "http://api.uptime.com/blurgh")

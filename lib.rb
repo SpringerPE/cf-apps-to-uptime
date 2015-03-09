@@ -42,27 +42,29 @@ def check_interval(meta, check_interval)
   check_interval
 end
 
-def enhance_app_data(app, meta_path, regex, alert_threshold, interval)
+def create_tags(app, meta)
+  tags = []
+  tags << app["org"]
+  emails = meta.fetch("alerting", {}).fetch("emails", [])
+  tags << emails.map {|email| "mailto:#{email}"}
+  tags.flatten
+end
+
+def create_app_data(app, meta_path, regex, alert_threshold, interval)
+  app_data = {}
+
   entry_url = app["routes"].select {|route| should_monitor_route? route, regex }[0]
   if not /^http:\/\//.match entry_url
     entry_url = "http://#{entry_url}"
   end
   meta_url = File.join(entry_url, meta_path)
-  app["monitor_routes"] = [meta_url]
-  app["meta"] = get_meta(meta_url)
+  meta = get_meta(meta_url)
 
-  alert_threshold_tmp = alert_treshold(app["meta"], alert_threshold)
-  app["alertThreshold"] = alert_threshold_tmp
-
-  interval_tmp = check_interval(app["meta"], interval)
-  app["interval"] = interval_tmp
-
-  tags = []
-  tags << app["org"]
-  emails = app.fetch("meta", {}).fetch("alerting", {}).fetch("emails", [])
-  tags << emails.map {|email| "mailto:#{email}"}
-  app["tags"] = tags.flatten
-  app
+  app_data["monitor_routes"] = [meta_url] # This will be enhanced trough the app metadata.
+  app_data["alertThreshold"] = alert_treshold(meta, alert_threshold)
+  app_data["interval"] = check_interval(meta, interval)
+  app_data["tags"] = create_tags(app, meta)
+  app_data
 end
 
 def diff(cf_data, uptime_data)
@@ -75,9 +77,11 @@ def diff(cf_data, uptime_data)
   cf_data.each do |app|
     app['monitor_routes'].each do |route|
       if not uptime_routes.include? route
-        return_data["to_add"] << { "url" => route,
-                                   "meta" => app["meta"],
-                                   "org" => app["org"] }
+        app_data = app.clone # This will have the format of the returned hash from create_app_data
+        app_data.delete("monitor_routes")
+        app_data["name"] = route
+        app_data["url"] = route
+        return_data["to_add"] << app_data
       end
     end
   end
@@ -94,18 +98,19 @@ def delete_from_uptime(data, uptime_api)
   HTTParty.delete(File.join(uptime_api, data['_id']))
 end
 
-def prepare_body(app)
-  body = {"name" => app['url'],
-          "url"  => app['url'],
-          "tags" => app['tags']}
-  body["interval"] = app["interval"] if app["interval"]
-  body["alertTreshold"] = app["alertThreshold"] if app["alertThreshold"] # keyword 'alertTreshold' is misspelled, because it is misspelled in Uptime
-  body
-end
-
 def add_to_uptime(app, uptime_api)
   body = prepare_body(app)
   response = HTTParty.put(uptime_api, :body => body)
+end
+
+def prepare_body(app)
+  body = {}
+  body["name"] = app["name"] if app["name"]
+  body["url"] = app["url"] if app["url"]
+  body["tags"] = app["tags"] if app["tags"]
+  body["interval"] = app["interval"] if app["interval"]
+  body["alertTreshold"] = app["alertThreshold"] if app["alertThreshold"] # keyword 'alertTreshold' is misspelled, because it is misspelled in Uptime
+  body
 end
 
 def carry_out_diff(diff, uptime_api)
