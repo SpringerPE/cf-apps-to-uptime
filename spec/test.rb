@@ -117,8 +117,6 @@ describe 'create_app_data' do
       }
 
       expected = {
-        "org" => "isrctn",
-        "space" => "live",
         "name"=> "isrctn-live-509",
         "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"],
         "alertThreshold" => 1,  # keyword is misspelled in Uptime
