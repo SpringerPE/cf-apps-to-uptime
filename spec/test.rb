@@ -226,7 +226,8 @@ describe 'carry_out_diff' do
       stub_request(:delete, /api.uptime.com/).
         to_return(:status => 200)
       diff_data = {"to_add" => [{"url" => "a", "name" => "a", "tags" => ["test"]}, {"url" => "b", "name" => "b", "tags" => ["test", "mailto:mailme@domain.com"]}],
-                   "to_delete" => [{"_id" => "blurgh"}, {"_id" => "wakawaka"}]}
+                   "to_delete" => [{"_id" => "blurgh"}, {"_id" => "wakawaka"}],
+                   "to_update" => []}
       carry_out_diff(diff_data, "http://api.uptime.com")
       expect(WebMock).to have_requested(:delete, "http://api.uptime.com/blurgh")
       expect(WebMock).to have_requested(:delete, "http://api.uptime.com/wakawaka")

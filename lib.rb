@@ -106,13 +106,16 @@ def diff(cf_data, uptime_data)
   diff_data
 end
 
-def delete_from_uptime(data, uptime_api)
-  HTTParty.delete(File.join(uptime_api, data['_id']))
+def delete_from_uptime(app, uptime_api)
+  HTTParty.delete(File.join(uptime_api, app['_id']))
 end
 
 def add_to_uptime(app, uptime_api)
-  body = prepare_body(app)
-  response = HTTParty.put(uptime_api, :body => body)
+  HTTParty.put(uptime_api, :body => prepare_body(app))
+end
+
+def update_check_in_uptime(app, uptime_api)
+  HTTParty.post(File.join(uptime_api, app['_id']), :body => prepare_body(app))
 end
 
 def prepare_body(app)
@@ -126,10 +129,13 @@ def prepare_body(app)
 end
 
 def carry_out_diff(diff, uptime_api)
-  diff["to_add"].each do |route|
-    add_to_uptime(route, uptime_api)
+  diff["to_add"].each do |app|
+    add_to_uptime(app, uptime_api)
   end
-  diff["to_delete"].each do |route|
-    delete_from_uptime(route, uptime_api)
+  diff["to_delete"].each do |app|
+    delete_from_uptime(app, uptime_api)
+  end
+  diff["to_update"].each do |app|
+    update_check_in_uptime(app, uptime_api)
   end
 end
