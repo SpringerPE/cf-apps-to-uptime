@@ -61,63 +61,71 @@ def create_app_data(app, meta_path, regex, alert_threshold, interval)
   meta = get_meta(meta_url)
 
   app_data["monitor_routes"] = [meta_url] # This will be enhanced trough the app metadata.
-  app_data["alertThreshold"] = alert_treshold(meta, alert_threshold)
+  app_data["alertTreshold"] = alert_treshold(meta, alert_threshold) # alertTreshold is wrongly spelled in uptime.
   app_data["interval"] = check_interval(meta, interval)
   app_data["tags"] = create_tags(app, meta)
   app_data
 end
 
 def diff(cf_data, uptime_data)
-  return_data = {"to_delete" => [],
-                 "to_add" => []}
+  diff_data = {"to_delete" => [],
+               "to_add" => [],
+               "to_update" => []}
 
   cf_routes = Set.new (cf_data.map {|app| app["monitor_routes"]}).flatten
   uptime_routes = Set.new uptime_data.map {|route| route["url"]}
 
   cf_data.each do |app|
-    app['monitor_routes'].each do |route|
-      if not uptime_routes.include? route
+    app['monitor_routes'].each do |url|
+      if not uptime_routes.include? url
         app_data = app.clone # This will have the format of the returned hash from create_app_data
         app_data.delete("monitor_routes")
-        app_data["name"] = route
-        app_data["url"] = route
-        return_data["to_add"] << app_data
+        app_data["name"] = url
+        app_data["url"] = url
+        diff_data["to_add"] << app_data
+      else
+        # Check is already in uptime, better check if we need to update it
+        uptime_check = uptime_data.select {|u| u["url"] == url}[0]
+        update_data = {}
+        update_data["alertTreshold"] = app["alertTreshold"] if app["alertTreshold"] != uptime_check["alertTreshold"] # alertTreshold is wrongly spelled in uptime.
+        update_data["interval"] = app["interval"] if app["interval"] != uptime_check["interval"]
+        update_data["tags"] = app["tags"] if Set.new(app["tags"]) != Set.new(uptime_check["tags"])
+        if not update_data.empty?
+          update_data["_id"] = uptime_check["_id"]
+          diff_data["to_update"] << update_data
+        end
       end
     end
   end
 
   uptime_data.each do |route|
     if not cf_routes.include? route["url"]
-      return_data["to_delete"] << route
+      diff_data["to_delete"] << route
     end
   end
-  return_data
+  diff_data
 end
 
-def delete_from_uptime(data, uptime_api)
-  HTTParty.delete(File.join(uptime_api, data['_id']))
+def delete_from_uptime(app, uptime_api)
+  HTTParty.delete(File.join(uptime_api, app['_id']))
 end
 
 def add_to_uptime(app, uptime_api)
-  body = prepare_body(app)
-  response = HTTParty.put(uptime_api, :body => body)
+  HTTParty.put(uptime_api, :body => app)
 end
 
-def prepare_body(app)
-  body = {}
-  body["name"] = app["name"] if app["name"]
-  body["url"] = app["url"] if app["url"]
-  body["tags"] = app["tags"] if app["tags"]
-  body["interval"] = app["interval"] if app["interval"]
-  body["alertTreshold"] = app["alertThreshold"] if app["alertThreshold"] # keyword 'alertTreshold' is misspelled, because it is misspelled in Uptime
-  body
+def update_check_in_uptime(app, uptime_api)
+  HTTParty.post(File.join(uptime_api, app['_id']), :body => app)
 end
 
 def carry_out_diff(diff, uptime_api)
-  diff["to_add"].each do |route|
-    add_to_uptime(route, uptime_api)
+  diff["to_add"].each do |app|
+    add_to_uptime(app, uptime_api)
   end
-  diff["to_delete"].each do |route|
-    delete_from_uptime(route, uptime_api)
+  diff["to_delete"].each do |app|
+    delete_from_uptime(app, uptime_api)
+  end
+  diff["to_update"].each do |app|
+    update_check_in_uptime(app, uptime_api)
   end
 end
