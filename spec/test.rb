@@ -108,6 +108,20 @@ describe 'diff' do
       expect(diff_data).to eq expected
     end
   end
+
+  context 'when given cf data which have failed to fetch meta' do
+    it 'should not update the check' do
+      cf_data = [{"monitor_routes" => ["a"], "tags" => ["simon"], "empty_meta" => true}]
+      uptime_data = [{"_id" => "WRYYYYY", "url" => "a", "name" => "a", "tags" => ["simon", "johansson"]}]
+
+      diff_data = diff(cf_data, uptime_data)
+      expected = {"to_add" => [],
+                  "to_delete" => [],
+                  "to_update" => []}
+
+      expect(diff_data).to eq expected
+    end
+  end
 end
 
 describe 'create_app_data' do
