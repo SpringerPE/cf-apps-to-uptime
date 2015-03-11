@@ -153,7 +153,7 @@ describe 'create_app_data' do
   end
 
   context 'when given a app where the fetching of metadata fails' do
-    it 'should return the app data with the ' do
+    it 'should return the app data with the emtpy_meta field set to true' do
       stub_request(:get, /isrctn-live.domain.com/).
         to_return(status: 404)
 
