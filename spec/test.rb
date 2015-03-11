@@ -137,6 +137,33 @@ describe 'create_app_data' do
       expect(create_app_data data, "/internal/status", /-live/, 1, 60).to eq(expected)
     end
   end
+
+  context 'when given a app where the fetching of metadata fails' do
+    it 'should return the app data with the ' do
+      stub_request(:get, /isrctn-live.domain.com/).
+        to_return(status: 404)
+
+      data = {
+        "org" => "isrctn",
+        "space" => "live",
+        "name"=> "isrctn-live-509",
+        "routes"=> [
+          "isrctn-live.domain.com",
+          "isrctn-live-509.domain.com"
+        ],
+        "data_from"=>1424103541
+      }
+
+      expected = {
+        "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"],
+        "alertTreshold" => 1,  # keyword is misspelled in Uptime
+        "interval" => 60,
+        "tags" => ["isrctn"],
+        "empty_meta" => true
+      }
+      expect(create_app_data data, "/internal/status", /-live/, 1, 60).to eq(expected)
+    end
+  end
 end
 
 describe 'get_meta' do
