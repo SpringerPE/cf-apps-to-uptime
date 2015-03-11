@@ -64,6 +64,7 @@ def create_app_data(app, meta_path, regex, alert_threshold, interval)
   app_data["alertTreshold"] = alert_treshold(meta, alert_threshold) # alertTreshold is wrongly spelled in uptime.
   app_data["interval"] = check_interval(meta, interval)
   app_data["tags"] = create_tags(app, meta)
+  app_data["empty_meta"] = true if meta.empty?
   app_data
 end
 
