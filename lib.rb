@@ -64,6 +64,7 @@ def create_app_data(app, meta_path, regex, alert_threshold, interval)
   app_data["alertTreshold"] = alert_treshold(meta, alert_threshold) # alertTreshold is wrongly spelled in uptime.
   app_data["interval"] = check_interval(meta, interval)
   app_data["tags"] = create_tags(app, meta)
+  app_data["empty_meta"] = true if meta.empty?
   app_data
 end
 
@@ -85,14 +86,16 @@ def diff(cf_data, uptime_data)
         diff_data["to_add"] << app_data
       else
         # Check is already in uptime, better check if we need to update it
-        uptime_check = uptime_data.select {|u| u["url"] == url}[0]
-        update_data = {}
-        update_data["alertTreshold"] = app["alertTreshold"] if app["alertTreshold"] != uptime_check["alertTreshold"] # alertTreshold is wrongly spelled in uptime.
-        update_data["interval"] = app["interval"] if app["interval"] != uptime_check["interval"]
-        update_data["tags"] = app["tags"] if Set.new(app["tags"]) != Set.new(uptime_check["tags"])
-        if not update_data.empty?
-          update_data["_id"] = uptime_check["_id"]
-          diff_data["to_update"] << update_data
+        if not app["empty_meta"] # If we for some reason failed to fetch the meta we dont want to update the check!
+          uptime_check = uptime_data.select {|u| u["url"] == url}[0]
+          update_data = {}
+          update_data["alertTreshold"] = app["alertTreshold"] if app["alertTreshold"] != uptime_check["alertTreshold"] # alertTreshold is wrongly spelled in uptime.
+          update_data["interval"] = app["interval"] if app["interval"] != uptime_check["interval"]
+          update_data["tags"] = app["tags"] if Set.new(app["tags"]) != Set.new(uptime_check["tags"])
+          if not update_data.empty?
+            update_data["_id"] = uptime_check["_id"]
+            diff_data["to_update"] << update_data
+          end
         end
       end
     end

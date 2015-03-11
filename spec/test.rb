@@ -108,6 +108,20 @@ describe 'diff' do
       expect(diff_data).to eq expected
     end
   end
+
+  context 'when given cf data which have failed to fetch meta' do
+    it 'should not update the check' do
+      cf_data = [{"monitor_routes" => ["a"], "tags" => ["simon"], "empty_meta" => true}]
+      uptime_data = [{"_id" => "WRYYYYY", "url" => "a", "name" => "a", "tags" => ["simon", "johansson"]}]
+
+      diff_data = diff(cf_data, uptime_data)
+      expected = {"to_add" => [],
+                  "to_delete" => [],
+                  "to_update" => []}
+
+      expect(diff_data).to eq expected
+    end
+  end
 end
 
 describe 'create_app_data' do
@@ -133,6 +147,33 @@ describe 'create_app_data' do
         "alertTreshold" => 1,  # keyword is misspelled in Uptime
         "interval" => 60,
         "tags" => ["isrctn", "mailto:mailme@domain.com"]
+      }
+      expect(create_app_data data, "/internal/status", /-live/, 1, 60).to eq(expected)
+    end
+  end
+
+  context 'when given a app where the fetching of metadata fails' do
+    it 'should return the app data with the emtpy_meta field set to true' do
+      stub_request(:get, /isrctn-live.domain.com/).
+        to_return(status: 404)
+
+      data = {
+        "org" => "isrctn",
+        "space" => "live",
+        "name"=> "isrctn-live-509",
+        "routes"=> [
+          "isrctn-live.domain.com",
+          "isrctn-live-509.domain.com"
+        ],
+        "data_from"=>1424103541
+      }
+
+      expected = {
+        "monitor_routes" => ["http://isrctn-live.domain.com/internal/status"],
+        "alertTreshold" => 1,  # keyword is misspelled in Uptime
+        "interval" => 60,
+        "tags" => ["isrctn"],
+        "empty_meta" => true
       }
       expect(create_app_data data, "/internal/status", /-live/, 1, 60).to eq(expected)
     end
