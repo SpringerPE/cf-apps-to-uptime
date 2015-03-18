@@ -29,17 +29,17 @@ end
 def alert_treshold(meta, alert_threshold)
   meta_alert_threshold = meta.fetch("monitoring", {})["threshold"]
   if meta_alert_threshold
-    return meta_alert_threshold
+    return meta_alert_threshold.to_i
   end
-  alert_threshold
+  alert_threshold.to_i
 end
 
 def check_interval(meta, check_interval)
   meta_check_interval = meta.fetch("monitoring", {})["interval"]
   if meta_check_interval
-    return meta_check_interval
+    return meta_check_interval.to_i
   end
-  check_interval
+  check_interval.to_i
 end
 
 def create_tags(app, meta)
